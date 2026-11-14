@@ -22,9 +22,6 @@ public class Server {
         this.port = port;
     }
 
-    /**
-     * Registers controller classes with the internal RouteRegistry.
-     */
     public void registerControllers(Class<?>... controllerClasses) {
         this.registry.register(controllerClasses);
     }
@@ -40,27 +37,27 @@ public class Server {
 
     private void handleExchange(HttpExchange exchange) throws IOException {
         try {
-            // 1. Base HTTP Request info
+            // Base HTTP Request info
             String path = exchange.getRequestURI().getPath();
             String method = exchange.getRequestMethod();
 
-            // 2. Extract headers
+            // Extract headers
             Map<String, String> headers = parseHeaders(exchange.getRequestHeaders());
 
-            // 3. Extract cookies (case-insensitive lookup via getFirst)
+            // Extract cookies (case-insensitive lookup via getFirst)
             String rawCookieHeader = exchange.getRequestHeaders().getFirst("Cookie");
             Map<String, String> cookies = parseInput(rawCookieHeader, ";");
 
-            // 4. Query parameters
+            // Query parameters
             String rawQuery = exchange.getRequestURI().getQuery();
             Map<String, String> queryParams = parseInput(rawQuery, "&");
 
-            // 5. Body parameters (POST/PUT form data)
+            // Body parameters (POST/PUT form data)
             InputStream inputStream = exchange.getRequestBody();
             String rawBody = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
             Map<String, String> bodyParams = parseInput(rawBody, "&");
 
-            // 6. Instantiate Request Object
+            // Instantiate Request Object
             Request req = new Request(
                 path,
                 method,
@@ -71,10 +68,10 @@ public class Server {
                 bodyParams
             );
 
-            // 7. Dispatch to RouteRegistry (Executes FilterChain -> Controller)
+            // Dispatch to RouteRegistry (Executes FilterChain then Controller)
             Response res = registry.dispatch(req);
 
-            // 8. Serialise Response back to HttpExchange
+            // Serialize Response back to HttpExchange
             writeResponse(exchange, res);
         } catch (Exception e) {
             // Emergency fallback error response

@@ -12,10 +12,9 @@ public class AuthFilter implements Filter {
         String secret = req.getQueryParams().get("secret");
 
         if ("admin".equals(secret)) {
-            return chain.next(req); // Allowed: keep going
+            return chain.next(req);
         }
 
-        // Short-circuit!
         return Response.error(
             401,
             "Unauthorized: Append '?secret=admin' to access protected routes."

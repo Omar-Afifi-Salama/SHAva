@@ -1,0 +1,26 @@
+---
+title: "My website"
+meta: "additional info"
+css:
+    "/styles/index.css"
+    "/styles/homepage.css"
+js:
+    "/scripts/homepage.js"
+---
+
+---
+title: "My website"
+css:
+    "/styles/index.css"
+---
+
+h1(class: "title") "Hello my name is "
+    span(class: "highlight") b ${name}
+
+for task in tasks
+    li(class: "task") ${task.title}
+
+if user
+    a(href: "/logout") "Logout"
+else
+    a(href: "/login") "Login"

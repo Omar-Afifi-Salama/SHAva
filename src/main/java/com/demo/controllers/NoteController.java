@@ -10,10 +10,10 @@ import com.framework.http.Request;
 import com.framework.http.Response;
 
 @Controller("/notes")
-@Use(LoggingFilter.class) // Applies to all routes in this controller
+@Use(LoggingFilter.class)
 public class NoteController {
 
-    // GET /notes - HTML Form & List
+    // GET /notes
     @Get("/")
     public Response index(Request req) {
         String html = """
@@ -43,7 +43,7 @@ public class NoteController {
         return Response.html(html);
     }
 
-    // GET /notes/:id - Path Parameter Extraction & JSON Response
+    // GET /notes/:id
     @Get("/:id")
     public Response show(Request req) {
         String id = req.getPathParam("id");
@@ -55,17 +55,16 @@ public class NoteController {
         return Response.json(json);
     }
 
-    // POST /notes - Form Body Handling & Redirect
+    // POST /notes
     @Post("/")
     public Response create(Request req) {
         String noteTitle = req.getBodyParam("title");
         System.out.println("[DB Simulation] Created new note: " + noteTitle);
 
-        // Redirect back to main page after form submission
         return Response.redirect("/notes");
     }
 
-    // GET /notes/protected - Tested with Method-Level AuthFilter
+    // GET /notes/protected
     @Get("/protected")
     @Use(AuthFilter.class)
     public Response protectedEndpoint(Request req) {

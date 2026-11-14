@@ -20,13 +20,13 @@ public class FilterChain {
     }
 
     public Response next(Request req) {
-        // Step 1: Execute filters sequentially if any remain
+        // Execute filters sequentially if any remain
         if (index < filters.size()) {
             Filter currentFilter = filters.get(index++);
             return currentFilter.doFilter(req, this);
         }
 
-        // Step 2: Once filters are exhausted, invoke the target controller method
+        // Once filters are exhausted, invoke the target controller method
         try {
             Object result = targetMethod.invoke(controllerInstance, req);
 

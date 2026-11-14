@@ -1,5 +1,6 @@
 package com.demo;
 
+import com.demo.controllers.IndexController;
 import com.demo.controllers.NoteController;
 import com.framework.http.Server;
 
@@ -9,10 +10,9 @@ public class Main {
         try {
             Server server = new Server(3000);
 
-            // Register controller class
+            server.registerControllers(IndexController.class);
             server.registerControllers(NoteController.class);
 
-            // Boot server
             server.start();
         } catch (Exception e) {
             e.printStackTrace();

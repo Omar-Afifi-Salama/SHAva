@@ -12,7 +12,6 @@ public class LoggingFilter implements Filter {
         long start = System.currentTimeMillis();
         System.out.println("--> [" + req.getMethod() + "] " + req.getPath());
 
-        // Pass control down the onion pipeline
         Response res = chain.next(req);
 
         long duration = System.currentTimeMillis() - start;

@@ -48,13 +48,13 @@ public class Response {
         return this;
     }
 
-    // Overload 1: For binary data (images, files)
+    // For binary data (images, files)
     public Response setBody(byte[] body) {
         this.body = body != null ? body : new byte[0];
         return this;
     }
 
-    // Overload 2: For text/string data (HTML, JSON, plain text)
+    // For text/string data (HTML, JSON, plain text)
     public Response setBody(String body) {
         if (body != null) {
             this.body = body.getBytes(StandardCharsets.UTF_8);

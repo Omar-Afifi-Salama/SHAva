@@ -308,7 +308,7 @@ public/
 
 ## Demo Application
 
-`src/com/demo` is a complete self-contained example:
+`src/main/java/com/demo` is a complete self-contained example:
 
 - `Main.java` — boots a `Server` on port **3000** and registers `NoteController`.
 - `controllers/NoteController.java` — shows `@Controller` base paths, class vs. method filters, an HTML-form `POST` with redirect, a JSON endpoint with `:id`, and a protected route.
@@ -331,31 +331,36 @@ Server started on http://localhost:3000
 ## Project Structure
 
 ```
-java-project/
-├── run_demo.sh                     # one-liner build + run script
-├── plan.md                          # planned features (see Roadmap)
-├── uml-diagram.md / .pdf            # class diagrams
-├── public/                          # static assets (served automatically)
+SHAva/
+├── run_demo.sh                       # one-liner build + run script
+├── docs/                             # proposal, UML diagrams, .shava examples
+│   ├── PROPOSAL.md
+│   ├── uml-diagram-fullstack.md
+│   ├── shava-uml-simple.mmd
+│   └── example.shava
+├── public/                           # static assets (served automatically)
 │   ├── css/style.css
 │   └── js/app.js
-└── src/
-    ├── com/framework/               # ← the SHAva framework
-    │   ├── annotations/             # @Controller, @Get, @Post, @Put,
-    │   │                            # @Delete, @Patch, @Options, @Use
-    │   ├── http/
-    │   │   ├── Server.java          # HttpServer wrapper: parse → dispatch → write
-    │   │   ├── Request.java         # null-safe request data + accessors
-    │   │   └── Response.java        # fluent response builder + factories
-    │   └── routing/
-    │       ├── RouteRegistry.java   # reflection scan, path regex, dispatch
-    │       ├── Route.java           # method + pattern + handler + filters
-    │       ├── Filter.java          # middleware interface
-    │       ├── FilterChain.java     # sequential filter execution → controller
-    │       └── StaticFileHandler.java
-    └── com/demo/                    # ← example application
-        ├── Main.java
-        ├── controllers/NoteController.java
-        └── filters/{LoggingFilter,AuthFilter}.java
+└── src/                              # standard Maven-style layout
+    ├── main/java/
+    │   ├── com/framework/            # ← the SHAva framework
+    │   │   ├── annotations/          # @Controller, @Get, @Post, @Put,
+    │   │   │                         # @Delete, @Patch, @Options, @Use
+    │   │   ├── http/
+    │   │   │   ├── Server.java       # HttpServer wrapper: parse → dispatch → write
+    │   │   │   ├── Request.java      # null-safe request data + accessors
+    │   │   │   └── Response.java     # fluent response builder + factories
+    │   │   └── routing/
+    │   │       ├── RouteRegistry.java # reflection scan, path regex, dispatch
+    │   │       ├── Route.java         # method + pattern + handler + filters
+    │   │       ├── Filter.java        # middleware interface
+    │   │       ├── FilterChain.java   # sequential filter execution → controller
+    │   │       └── StaticFileHandler.java
+    │   └── com/demo/                 # ← example application
+    │       ├── Main.java
+    │       ├── controllers/NoteController.java
+    │       └── filters/{LoggingFilter,AuthFilter}.java
+    └── test/java/                    # (future) framework tests
 ```
 
 ---
@@ -397,8 +402,6 @@ java-project/
 ---
 
 ## Roadmap
-
-Tracked in [`plan.md`](plan.md):
 
 - [x] Static asset serving from `public/`
 - [x] `@Put`, `@Delete`, `@Patch`, `@Options` routing

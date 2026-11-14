@@ -13,7 +13,6 @@ public class Request {
     private Map<String, String> queryParams;
     private Map<String, String> bodyParams;
 
-    // Primary Constructor with Null Defense
     public Request(
         String path,
         String method,
@@ -26,7 +25,6 @@ public class Request {
         this.path = path != null ? path : "/";
         this.method = method != null ? method.toUpperCase() : "GET";
 
-        // Ensure internal maps are never null
         this.headers = headers != null ? headers : new HashMap<>();
         this.cookies = cookies != null ? cookies : new HashMap<>();
         this.pathParams = pathParams != null ? pathParams : new HashMap<>();
@@ -34,7 +32,7 @@ public class Request {
         this.bodyParams = bodyParams != null ? bodyParams : new HashMap<>();
     }
 
-    // Convenience Constructor
+    // Constructor
     public Request(String path, String method) {
         this(path, method, null, null, null, null, null);
     }
@@ -68,7 +66,7 @@ public class Request {
         return bodyParams;
     }
 
-    // --- Individual Key Lookups (Crucial for clean controllers!) ---
+    // --- Individual Key Lookups ---
     public String getHeader(String key) {
         return headers.get(key);
     }
