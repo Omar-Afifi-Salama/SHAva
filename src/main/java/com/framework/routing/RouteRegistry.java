@@ -26,8 +26,8 @@ public class RouteRegistry {
      * Accepts one or more controller classes and registers their annotated routes.
      */
     public void register(Class<?>... controllerClasses) {
-        for (Class<?> clazz : controllerClasses) {
-            registerController(clazz);
+        for (Class<?> controllerClass : controllerClasses) {
+            registerController(controllerClass);
         }
     }
 
@@ -35,24 +35,24 @@ public class RouteRegistry {
      * Scans a single controller class for @Controller, route annotations (@Get, @Post),
      * and filters (@Use).
      */
-    public void registerController(Class<?> clazz) {
-        if (!clazz.isAnnotationPresent(Controller.class)) {
+    public void registerController(Class<?> ControllerClass) {
+        if (!ControllerClass.isAnnotationPresent(Controller.class)) {
             return;
         }
 
         try {
             // 1. Instantiate the controller using its default constructor
-            Object controllerInstance = clazz.getDeclaredConstructor().newInstance();
+            Object controllerInstance = ControllerClass.getDeclaredConstructor().newInstance();
 
             // 2. Read base path from @Controller(value = "...")
-            Controller controllerAnno = clazz.getAnnotation(Controller.class);
+            Controller controllerAnno = ControllerClass.getAnnotation(Controller.class);
             String basePath = controllerAnno.value();
 
             // 3. Instantiate class-level filters defined via @Use
-            List<Filter> classFilters = instantiateFilters(clazz.getAnnotation(Use.class));
+            List<Filter> classFilters = instantiateFilters(ControllerClass.getAnnotation(Use.class));
 
             // 4. Inspect methods for route annotations
-            for (Method method : clazz.getDeclaredMethods()) {
+            for (Method method : ControllerClass.getDeclaredMethods()) {
                 String httpMethod = null;
                 String methodPath = null;
 
@@ -105,7 +105,7 @@ public class RouteRegistry {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to register controller: " + clazz.getName(), e);
+            throw new RuntimeException("Failed to register controller: " + ControllerClass.getName(), e);
         }
     }
 
