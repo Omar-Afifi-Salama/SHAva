@@ -1,7 +1,6 @@
 # Project Proposal — SHAva
 
-**Course:** Object-Oriented Programming (Java)
-**Team:** [Your Name], [Partner's Name]
+**Team:** Omar Afifi, George Onsy
 **Date:** November 2026
 
 ---
