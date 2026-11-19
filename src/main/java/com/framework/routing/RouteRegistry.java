@@ -1,13 +1,13 @@
 package com.framework.routing;
 
-import com.framework.annotations.Controller;
-import com.framework.annotations.Delete;
-import com.framework.annotations.Get;
-import com.framework.annotations.Options;
-import com.framework.annotations.Patch;
-import com.framework.annotations.Post;
-import com.framework.annotations.Put;
-import com.framework.annotations.Use;
+import com.framework.annotations.http.Controller;
+import com.framework.annotations.http.Delete;
+import com.framework.annotations.http.Get;
+import com.framework.annotations.http.Options;
+import com.framework.annotations.http.Patch;
+import com.framework.annotations.http.Post;
+import com.framework.annotations.http.Put;
+import com.framework.annotations.http.Use;
 import com.framework.http.Request;
 import com.framework.http.Response;
 import java.lang.reflect.Method;
@@ -49,7 +49,9 @@ public class RouteRegistry {
             String basePath = controllerAnno.value();
 
             // 3. Instantiate class-level filters defined via @Use
-            List<Filter> classFilters = instantiateFilters(ControllerClass.getAnnotation(Use.class));
+            List<Filter> classFilters = instantiateFilters(
+                ControllerClass.getAnnotation(Use.class)
+            );
 
             // 4. Inspect methods for route annotations
             for (Method method : ControllerClass.getDeclaredMethods()) {
@@ -105,7 +107,10 @@ public class RouteRegistry {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to register controller: " + ControllerClass.getName(), e);
+            throw new RuntimeException(
+                "Failed to register controller: " + ControllerClass.getName(),
+                e
+            );
         }
     }
 

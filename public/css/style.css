@@ -1,4 +1,267 @@
+:root {
+    --bg: #f2f4f8;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --danger: #dc2626;
+    --radius: 10px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    background-color: #f4f4f9;
-    color: #333;
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+}
+
+/* --- Layout --- */
+
+.container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+}
+
+.topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+}
+
+/* --- Auth pages --- */
+
+.auth-body {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+}
+
+.auth-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+    padding: 32px;
+    width: 340px;
+    text-align: center;
+}
+
+.auth-card h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin: 24px 0 8px;
+}
+
+.auth-card .btn {
+    width: 100%;
+}
+
+.tagline {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 16px;
+}
+
+/* --- Brand --- */
+
+.app-logo {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 8px;
+}
+
+.app-logo span {
+    color: var(--primary);
+}
+
+/* --- Forms --- */
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input,
+textarea {
+    font: inherit;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text);
+}
+
+input:focus,
+textarea:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+    border-color: var(--primary);
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* --- Buttons --- */
+
+.btn {
+    font: inherit;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.15s ease;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-secondary {
+    background: var(--surface);
+    color: var(--primary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: var(--bg);
+}
+
+.btn-danger {
+    background: transparent;
+    color: var(--danger);
+    padding: 6px 12px;
+}
+
+.btn-danger:hover {
+    background: #fee2e2;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+}
+
+.btn-ghost:hover {
+    background: var(--bg);
+}
+
+/* --- Panels & banners --- */
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+}
+
+.panel h2 {
+    margin-top: 0;
+}
+
+.banner {
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.banner-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* --- Notes --- */
+
+.section-title {
+    margin: 0 0 12px;
+}
+
+.note-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.note-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.note-card h3 {
+    margin: 0;
+    word-wrap: break-word;
+}
+
+.note-card p {
+    margin: 0;
+    color: var(--text-muted);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.note-card footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 8px;
+}
+
+.note-card time {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.note-card.note-deleting {
+    opacity: 0;
+    transform: scale(0.96);
+}
+
+.empty-state {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 32px 0;
 }

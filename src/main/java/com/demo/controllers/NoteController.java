@@ -1,73 +1,192 @@
 package com.demo.controllers;
 
+import com.demo.auth.Session;
+import com.demo.models.Note;
+import com.demo.models.User;
+import com.demo.util.Html;
+import com.framework.annotations.http.Controller;
+import com.framework.annotations.http.Delete;
+import com.framework.annotations.http.Get;
+import com.framework.annotations.http.Post;
+import com.framework.annotations.http.Use;
 import com.demo.filters.AuthFilter;
 import com.demo.filters.LoggingFilter;
-import com.framework.annotations.Controller;
-import com.framework.annotations.Get;
-import com.framework.annotations.Post;
-import com.framework.annotations.Use;
+import com.framework.data.Model;
+import com.framework.data.Query;
 import com.framework.http.Request;
 import com.framework.http.Response;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
+/**
+ * The notes app. Every route requires a logged-in user (class-level AuthFilter),
+ * and every note is scoped to the logged-in user's id.
+ */
 @Controller("/notes")
-@Use(LoggingFilter.class)
+@Use({ LoggingFilter.class, AuthFilter.class })
 public class NoteController {
 
-    // GET /notes
     @Get("/")
     public Response index(Request req) {
-        String html = """
-        <!DOCTYPE html>
-        <html>
-        <head><title>Framework Test App</title></head>
-        <link rel="stylesheet" href="/css/style.css">
-        <script src="/js/app.js"></script>
-        <body style="font-family: sans-serif; padding: 20px;">
-            <h1>Notes App (Custom Java Framework)</h1>
+        int userId = Session.userId(req);
+        List<Note> notes = Model.query(Note.class)
+            .where("userId", userId)
+            .orderByDesc("id")
+            .get();
 
-            <h3>Create New Note</h3>
-            <form action="/notes" method="POST">
-                <input type="text" name="title" placeholder="Note Title" required />
-                <button type="submit">Submit Note</button>
-            </form>
-
-            <h3>Sample Links to Test:</h3>
-            <ul>
-                <li><a href="/notes/42">Get Note #42 (JSON)</a></li>
-                <li><a href="/notes/protected">Protected Route (Fails without secret)</a></li>
-                <li><a href="/notes/protected?secret=admin">Protected Route (Passes with secret)</a></li>
-            </ul>
-        </body>
-        </html>
-        """;
-        return Response.html(html);
+        return Response.html(renderNotesPage(req, notes));
     }
 
-    // GET /notes/:id
-    @Get("/:id")
-    public Response show(Request req) {
-        String id = req.getPathParam("id");
-        String json = String.format(
-            "{\"status\": \"success\", \"noteId\": \"%s\", \"content\": \"Sample content for note %s\"}",
-            id,
-            id
-        );
-        return Response.json(json);
-    }
-
-    // POST /notes
     @Post("/")
     public Response create(Request req) {
-        String noteTitle = req.getBodyParam("title");
-        System.out.println("[DB Simulation] Created new note: " + noteTitle);
+        String title = req.getBodyParam("title");
+        String body = req.getBodyParam("body");
+        if (title == null || title.isBlank()) {
+            return Response.redirect("/notes");
+        }
+
+        Note note = new Note(
+            Session.userId(req),
+            title.trim(),
+            body != null ? body.trim() : "",
+            LocalDateTime.now().toString()
+        );
+        note.save();
 
         return Response.redirect("/notes");
     }
 
-    // GET /notes/protected
-    @Get("/protected")
-    @Use(AuthFilter.class)
-    public Response protectedEndpoint(Request req) {
-        return Response.html("<h1>Secret Vault: You are authorized!</h1>");
+    // JSON API: single note, owned by the logged-in user
+    @Get("/:id")
+    public Response show(Request req) {
+        Optional<Note> note = ownedNote(req);
+        if (note.isEmpty()) {
+            return Response.error(404, "Note not found");
+        }
+
+        Note n = note.get();
+        return Response.json(
+            "{\"status\": \"success\", \"note\": {\"id\": %d, \"title\": \"%s\", \"body\": \"%s\"}}".formatted(
+                n.getId(),
+                jsonEscape(n.getTitle()),
+                jsonEscape(n.getBody())
+            )
+        );
+    }
+
+    // JSON API: delete via fetch() from app.js
+    @Delete("/:id")
+    public Response destroy(Request req) {
+        int deleted = ownedNoteQuery(req).delete();
+        if (deleted == 0) {
+            return Response.error(404, "Note not found");
+        }
+        return Response.json("{\"status\": \"deleted\"}");
+    }
+
+    // --- Rendering ---
+
+    private String renderNotesPage(Request req, List<Note> notes) {
+        StringBuilder cards = new StringBuilder();
+        for (Note note : notes) {
+            cards.append("""
+                <article class="note-card" data-id="%d">
+                    <h3>%s</h3>
+                    <p>%s</p>
+                    <footer>
+                        <time>%s</time>
+                        <button class="btn btn-danger note-delete" data-id="%d">Delete</button>
+                    </footer>
+                </article>
+                """.formatted(
+                note.getId(),
+                Html.escape(note.getTitle()),
+                Html.escape(note.getBody()),
+                Html.escape(Html.formatDate(note.getCreatedAt())),
+                note.getId()
+            ));
+        }
+
+        String username = Model.find(User.class, Session.userId(req))
+            .map(User::getUsername)
+            .orElse("unknown");
+
+        return """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>My Notes - SHAva Notes</title>
+            <link rel="stylesheet" href="/css/style.css">
+        </head>
+        <body>
+            <header class="topbar">
+                <span class="app-logo">SHAva<span>Notes</span></span>
+                <div class="topbar-user">
+                    <span>%s</span>
+                    <form method="POST" action="/logout">
+                        <button type="submit" class="btn btn-ghost">Log out</button>
+                    </form>
+                </div>
+            </header>
+
+            <main class="container">
+                <section class="panel">
+                    <h2>New note</h2>
+                    <form method="POST" action="/notes" class="stack">
+                        <input type="text" name="title" placeholder="Title" required>
+                        <textarea name="body" rows="3" placeholder="Write something..."></textarea>
+                        <button type="submit" class="btn btn-primary">Save note</button>
+                    </form>
+                </section>
+
+                <h2 class="section-title">My notes</h2>
+                <div class="note-grid">
+                    %s
+                </div>
+                %s
+            </main>
+            <script src="/js/app.js"></script>
+        </body>
+        </html>
+        """.formatted(
+            Html.escape(username),
+            cards.toString(),
+            notes.isEmpty()
+                ? "<p class='empty-state'>No notes yet — create your first one above.</p>"
+                : ""
+        );
+    }
+
+    // --- Helpers ---
+
+    private Query<Note> ownedNoteQuery(Request req) {
+        int userId = Session.userId(req);
+        int noteId = parseId(req.getPathParam("id"));
+
+        return Model.query(Note.class)
+            .where("id", noteId)
+            .where("userId", userId);
+    }
+
+    private Optional<Note> ownedNote(Request req) {
+        return ownedNoteQuery(req).first();
+    }
+
+    private int parseId(String rawId) {
+        try {
+            return Integer.parseInt(rawId);
+        } catch (NumberFormatException e) {
+            return -1; // never matches a real id
+        }
+    }
+
+    private String jsonEscape(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 }
