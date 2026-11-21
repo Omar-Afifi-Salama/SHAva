@@ -1,6 +1,6 @@
 package com.framework.view;
 
-public class Parser {
+final class Parser {
     Parser() {
     }
 }
